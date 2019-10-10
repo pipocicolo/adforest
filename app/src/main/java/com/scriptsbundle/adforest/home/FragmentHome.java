@@ -140,11 +140,11 @@ public class FragmentHome extends Fragment  {
     CardView catCardView;
     LinearLayout HomeCustomLayout, staticSlider;
     TextView tv_search_title, tv_search_subTitle;
-    EditText et_search;
     ImageButton img_btn_search;
     RelativeLayout searchLayout;
     ImageView backgroundImage;
-    Button buttonAllCat, buttonPost;
+    Button buttonAllCat, sell_button, buy_button;
+    RuntimePermissionHelper runtimePermissionHelper;
 
     static boolean title_Nav;
     private SettingsMain settingsMain;
@@ -244,14 +244,21 @@ public class FragmentHome extends Fragment  {
         viw = view.findViewById(R.id.viw);
         tv_search_title = view.findViewById(R.id.tv_search_title);
         tv_search_subTitle = view.findViewById(R.id.tv_search_subTitle);
-        et_search = view.findViewById(R.id.et_search);
-        img_btn_search = view.findViewById(R.id.img_btn_search);
         searchLayout = view.findViewById(R.id.searchLayout);
         backgroundImage = view.findViewById(R.id.backgroundImage);
-        buttonPost = view.findViewById(R.id.buttonPostAd);
+        sell_button = view.findViewById(R.id.sell_button);
+        buy_button = view.findViewById(R.id.buy_button);
 
-        buttonPost.setOnClickListener(new View.OnClickListener()
+
+        buy_button.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+            intent.putExtra("catId", "");
+            startActivity(intent);
+        });
+
+        sell_button.setOnClickListener(new View.OnClickListener()
         {
+
 /*UNTUK
  BUTTON
  ADD
@@ -260,6 +267,7 @@ public class FragmentHome extends Fragment  {
  AD*/
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(getActivity(), AddNewAdPost.class);
                 startActivity(intent);
 
@@ -270,46 +278,9 @@ public class FragmentHome extends Fragment  {
             }
         });
 
-
-
-
-
-
-
-        if (settingsMain.getRTL()) {
-            Drawable drawable = getResources().getDrawable(R.drawable.bg_home_search_clickrtl).mutate();
-            drawable.setColorFilter(Color.parseColor(SettingsMain.getMainColor()), PorterDuff.Mode.SRC_ATOP);
-            img_btn_search.setBackground(drawable);
-
-        } else {
-
-            Drawable drawable = getResources().getDrawable(R.drawable.bg_home_search_click).mutate();
-            drawable.setColorFilter(Color.parseColor(SettingsMain.getMainColor()), PorterDuff.Mode.SRC_ATOP);
-
-            img_btn_search.setBackground(drawable);
-        }
-        et_search.setOnEditorActionListener((v, actionId, event) -> {
-            if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
-                Intent intent = new Intent(getContext(), SearchActivity.class);
-                intent.putExtra("catId", "");
-                intent.putExtra("ad_title", et_search.getText().toString());
-                intent.putExtra("requestFrom", "Home");
-                startActivity(intent);
-                getActivity().overridePendingTransition(R.anim.right_enter, R.anim.left_out);
-            }
-            return false;
-        });
-        img_btn_search.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), SearchActivity.class);
-            intent.putExtra("catId", "");
-            intent.putExtra("ad_title", et_search.getText().toString());
-            intent.putExtra("requestFrom", "Home");
-            startActivity(intent);
-            getActivity().overridePendingTransition(R.anim.right_enter, R.anim.left_out);
-        });
-
-
         if (settingsMain.getAppOpen()) {
+
+
             restService = UrlController.createService(RestService.class);
         } else
             restService = UrlController.createService(RestService.class, settingsMain.getUserEmail(), settingsMain.getUserPassword(), getActivity());
@@ -758,7 +729,6 @@ public class FragmentHome extends Fragment  {
                 tv_search_title.setText(search_section.getString("main_title"));
                 tv_search_subTitle.setText(search_section.getString("sub_title"));
                 viw.setBackgroundColor(Color.parseColor(SettingsMain.getMainColor()));
-                et_search.setHint(search_section.getString("placeholder"));
                 if (!TextUtils.isEmpty(search_section.getString("image"))) {
                     Picasso.with(getContext()).load(search_section.getString("image"))
                             .error(R.drawable.placeholder)
