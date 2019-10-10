@@ -2,6 +2,8 @@ package com.scriptsbundle.adforest.home;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Dialog;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,13 +12,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.NetworkOnMainThreadException;
 
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.RequiresApi;
@@ -29,7 +35,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,6 +45,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,6 +59,8 @@ import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.JsonObject;
+import com.scriptsbundle.adforest.home.helper.Location_popupModel;
+import com.scriptsbundle.adforest.utills.GPSTracker;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -63,6 +74,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
 import okhttp3.ResponseBody;
@@ -100,8 +113,14 @@ import com.scriptsbundle.adforest.utills.CustomBorderDrawable;
 import com.scriptsbundle.adforest.utills.Network.RestService;
 import com.scriptsbundle.adforest.utills.SettingsMain;
 import com.scriptsbundle.adforest.utills.UrlController;
+import com.xw.repo.BubbleSeekBar;
+import com.scriptsbundle.adforest.utills.RuntimePermissionHelper;
 
-public class FragmentHome extends Fragment {
+import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.scriptsbundle.adforest.utills.SettingsMain.getMainColor;
+
+
+public class FragmentHome extends Fragment  {
 
     static int adsCounter = 0;
     public JSONObject jsonObjectSubMenu, responseData;
@@ -125,7 +144,8 @@ public class FragmentHome extends Fragment {
     ImageButton img_btn_search;
     RelativeLayout searchLayout;
     ImageView backgroundImage;
-    Button buttonAllCat;
+    Button buttonAllCat, buttonPost;
+
     static boolean title_Nav;
     private SettingsMain settingsMain;
     private ArrayList<catSubCatlistModel> latesetAdsList = new ArrayList<>();
@@ -228,6 +248,32 @@ public class FragmentHome extends Fragment {
         img_btn_search = view.findViewById(R.id.img_btn_search);
         searchLayout = view.findViewById(R.id.searchLayout);
         backgroundImage = view.findViewById(R.id.backgroundImage);
+        buttonPost = view.findViewById(R.id.buttonPostAd);
+
+        buttonPost.setOnClickListener(new View.OnClickListener()
+        {
+/*UNTUK
+ BUTTON
+ ADD
+ NEW
+ POST
+ AD*/
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AddNewAdPost.class);
+                startActivity(intent);
+
+
+                /*Toast.makeText(getApplicationContext(),"Hello Javatpoint",Toast.LENGTH_SHORT).show();*/
+                ;
+
+            }
+        });
+
+
+
+
+
 
 
         if (settingsMain.getRTL()) {
@@ -308,6 +354,128 @@ public class FragmentHome extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
+    /*UNTUK
+ BUTTON
+ ADD
+ NEW
+ POST
+ AD*/
+
+   /* private void adforest_loctionSearch() {
+
+        gps = new GPSTracker(HomeActivity.this);
+
+        List<Address> addresses1 = null;
+        if (gps.canGetLocation()) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+
+            Location_popupModel Location_popupModel = settingsMain.getLocationPopupModel(this);
+
+            final Dialog dialog = new Dialog(HomeActivity.this, R.style.customDialog);
+
+            dialog.setCanceledOnTouchOutside(true);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.dialog_location_seekbar);
+
+            final BubbleSeekBar bubbleSeekBar = dialog.findViewById(R.id.seakBar);
+            bubbleSeekBar.getConfigBuilder()
+                    .max(Location_popupModel.getSlider_number())
+                    .sectionCount(Location_popupModel.getSlider_step())
+                    .secondTrackColor(Color.parseColor(getMainColor()))
+                    .build();
+
+            try {
+                addresses1 = new Geocoder(this, Locale.getDefault()).getFromLocation(latitude, longitude, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            StringBuilder result = new StringBuilder();
+            if (addresses1.size() > 0) {
+                Address address = addresses1.get(0);
+                int maxIndex = address.getMaxAddressLineIndex();
+                for (int x = 0; x <= maxIndex; x++) {
+                    result.append(address.getAddressLine(x));
+                    //result.append(",");
+                }
+            }
+            Log.d("info location", addresses1.toString());
+            Log.d("info locaLatLong", latitude + " Long " + longitude);
+
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.parseColor("#00000000")));
+            Button Send = dialog.findViewById(R.id.send_button);
+            Button Cancel = dialog.findViewById(R.id.cancel_button);
+            TextView locationText = dialog.findViewById(R.id.locationText);
+
+            currentLocationText = dialog.findViewById(R.id.et_location);
+            placesClient = com.google.android.libraries.places.api.Places.createClient(this);
+            currentLocationText.setOnItemClickListener(this);
+
+            currentLocationText.addTextChangedListener(new TextWatcher() {
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    manageAutoComplete(s.toString());
+
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+
+            Send.setText(Location_popupModel.getBtn_submit());
+            Cancel.setText(Location_popupModel.getBtn_clear());
+            locationText.setText(Location_popupModel.getText());
+
+            if (result.toString().isEmpty()) {
+                currentLocationText.setVisibility(View.GONE);
+            } else
+                currentLocationText.setHint(result.toString());
+            Send.setBackgroundColor(Color.parseColor(getMainColor()));
+            Cancel.setBackgroundColor(Color.parseColor(getMainColor()));
+
+            Send.setOnClickListener(v -> {
+                adforest_changeNearByStatus(Double.toString(latitude), Double.toString(longitude),
+                        Integer.toString(bubbleSeekBar.getProgress()));
+                dialog.dismiss();
+            });
+            Cancel.setOnClickListener(v -> {
+                adforest_changeNearByStatus("", ""
+                        , Integer.toString(bubbleSeekBar.getProgress()));
+                dialog.dismiss();
+            });
+
+            dialog.show();
+        } else
+            gps.showSettingsAlert();
+    }*/
+
+    public void onSuccessPermission(int code) {
+        if (code == 1) {
+            //adforest_loctionSearch();
+
+        }
+        if (code == 2) {
+            Intent intent = new Intent(getApplicationContext(), AddNewAdPost.class);
+            startActivity(intent);
+        }
+    }
+
+    /*UNTUK
+ BUTTON
+ ADD
+ NEW
+ POST
+ AD
+ TAMAT*/
 
     private void adforest_getAllData() {
 
@@ -573,6 +741,7 @@ public class FragmentHome extends Fragment {
                     Log.d("info HomeGet error", String.valueOf(t.getMessage() + t.getCause() + t.fillInStackTrace()));
                 }
             });
+
 
         } else {
             SettingsMain.hideDilog();

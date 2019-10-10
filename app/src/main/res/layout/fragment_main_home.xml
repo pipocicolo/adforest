@@ -108,6 +108,14 @@
                             android:background="@drawable/ic_search"
                             android:src="@drawable/ic_search" />
 
+                        <Button
+                            android:id="@+id/buttonPostAd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentBottom="true"
+                            android:text="SELL" />
+
 
                     </RelativeLayout>
 

@@ -173,6 +173,8 @@ public class HomeActivity extends AppCompatActivity
         activity = this;
 
 
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -183,6 +185,12 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+
+/*        buttton.setOnClickListener(view -> {
+            runtimePermissionHelper.requestLocationPermission(2);
+        });*/
+
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getMainColor())));
 
         fab.setOnClickListener(view -> {
@@ -217,6 +225,7 @@ public class HomeActivity extends AppCompatActivity
         if (settingsMain.getAppOpen()) {
             restService = UrlController.createService(RestService.class);
             fab.setVisibility(View.VISIBLE);
+
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
