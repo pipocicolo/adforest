@@ -43,7 +43,8 @@
     <color name="gradientthird">#e23b4a</color>
     <color name="gradientfourth">#db0768</color>
     <color name="gradientfifth">#360670</color>
-
+    <color name="buyButton">#FFFFFF</color>
+    <color name="sellButton">#D8D81016</color>
 
 
 
